@@ -1,0 +1,100 @@
+```{r}
+library(tidyverse)
+library(skimr)
+library(DataExplorer)
+library(stringr)
+library(patchwork)
+library(ggrepel)
+```
+
+
+
+```{r}
+cars <- read_csv("vehicle_data/car_prices.csv")
+
+```
+
+
+
+```{r}
+head(train)
+
+```
+
+
+```{r}
+dim(train)
+```
+
+
+```{r}
+list.files(path = "./vehicle_data")
+
+```
+
+```{r}
+theme <- theme(plot.margin = margin(10, 10, 10, 5, "mm"),              
+              plot.background = element_rect(fill = "#f6f5f4"), 
+              plot.title = element_text(size = 24),                   
+              plot.subtitle = element_text(size = 16),                
+              axis.text = element_text(size = 16),
+              axis.title = element_text(size = 16),              
+              legend.title = element_text(size = 16),                 
+              legend.text = element_text(size = 14))
+```
+
+```{r}
+nrow(cars)
+head(cars, 3)
+```
+
+
+```{r}
+skim(cars)
+```
+```{r}
+
+```
+
+
+
+```{r}
+options(repr.plot.width = 12, repr.plot.height = 8)
+plot_missing(
+  cars,
+  group = list(Good = 0.002, OK = 0.05, Bad = 0.8, Remove = 1),
+  missing_only = FALSE, # true if you want to show only the columns with missing values (important if you have high number of features with no missing values)
+  geom_label_args = list(),
+  title = 'Missing values in each column',
+  ggtheme = theme,
+  theme_config = list(legend.position = c("top"))
+)
+```
+
+```{r}
+unique_values <- rapply(cars,function(x) length(unique(x)))
+unique_values
+
+```
+
+```{r}
+
+# duplicated(cars$vin)
+length(cars$vin[duplicated(cars$vin)])
+cars$vin[duplicated(cars$vin)]
+
+```
+
+```{r}
+filter(cars, vin == ('2cndl13f056137366') | vin == ('waulfafh7dn005779') |vin == ('1ftsw21r48ed06505'))
+```
+```{r}
+
+```
+
+
+
+
+
+
+
