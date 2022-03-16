@@ -1,3 +1,4 @@
+
 ```{r}
 library(tidyverse)
 library(skimr)
@@ -53,8 +54,13 @@ head(cars, 3)
 skim(cars)
 ```
 ```{r}
-
+plot_intro(cars)
 ```
+
+```{r}
+create_report(cars)
+```
+
 
 
 
@@ -88,9 +94,122 @@ cars$vin[duplicated(cars$vin)]
 ```{r}
 filter(cars, vin == ('2cndl13f056137366') | vin == ('waulfafh7dn005779') |vin == ('1ftsw21r48ed06505'))
 ```
+
+
 ```{r}
+unique(cars$year)
+```
+
+```{r}
+unique(cars$make)
+```
+
+```{r}
+unique(cars$model)
 
 ```
+
+```{r}
+unique(cars$transmission)
+
+```
+
+```{r}
+unique(cars$color)
+
+```
+
+```{r}
+unique(cars$body)
+
+```
+
+```{r}
+unique(cars$condition)
+
+```
+
+```{r}
+unique(cars$interior)
+```
+
+```{r}
+filter(cars,interior=="—")
+
+```
+filtering the "—" in color and interior
+```{r}
+unique(cars$color)
+```
+
+
+```{r}
+
+cars <- cars %>% mutate(interior=gsub("—","Unknown",cars$interior)) %>%  mutate(color=gsub("—","Unknown",cars$color))
+
+```
+
+
+```{r}
+unique(cars$interior)
+unique(cars$interior)
+```
+```{r}
+unique(cars$state)
+```
+filtering state
+```{r}
+faulty_states<-cars %>% filter(str_detect(state,"3vw"))
+nrow(faulty_states)
+```
+```{r}
+cars <- cars[!grepl("3vw",cars$state),]
+```
+
+```{r}
+
+unique(cars$state)
+```
+```{r}
+cars$state=toupper(cars$state)
+unique(cars$state)
+```
+```{r}
+length(grepl("sfvver",cars$state))
+```
+```{r}
+cars.years <- cars
+dim(cars)
+```
+
+
+```{r}
+
+c<-na.omit(cars)
+dim(c)
+
+```
+```{r}
+plot_missing(c)
+```
+```{r}
+c$make <- str_to_title(c$make)
+c$model <- str_to_title(c$model)
+c$body <- str_to_title(c$body)
+```
+
+```{r}
+head(c)
+```
+
+
+
+```{r}
+cwec
+```
+
+
+
 
 
 
