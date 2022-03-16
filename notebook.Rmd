@@ -1,4 +1,4 @@
-
+#Loading the Required Libraries
 ```{r}
 library(tidyverse)
 library(skimr)
@@ -9,7 +9,7 @@ library(ggrepel)
 ```
 
 
-
+#Loading the Data
 ```{r}
 cars <- read_csv("vehicle_data/car_prices.csv")
 
@@ -18,18 +18,23 @@ cars <- read_csv("vehicle_data/car_prices.csv")
 
 
 ```{r}
-head(train)
+head(cars)
 
 ```
 
 
 ```{r}
-dim(train)
+dim(cars)
+```
+
+```{r}
+introduce(cars)
 ```
 
 
+
 ```{r}
-list.files(path = "./vehicle_data")
+plot_str(cars)
 
 ```
 
@@ -50,9 +55,12 @@ head(cars, 3)
 ```
 
 
+
 ```{r}
 skim(cars)
 ```
+
+
 ```{r}
 plot_intro(cars)
 ```
@@ -88,7 +96,6 @@ unique_values
 # duplicated(cars$vin)
 length(cars$vin[duplicated(cars$vin)])
 cars$vin[duplicated(cars$vin)]
-
 ```
 
 ```{r}
@@ -137,12 +144,14 @@ unique(cars$interior)
 filter(cars,interior=="—")
 
 ```
-filtering the "—" in color and interior
+
+
+
 ```{r}
 unique(cars$color)
 ```
 
-
+filtering the "—" in color and interior
 ```{r}
 
 cars <- cars %>% mutate(interior=gsub("—","Unknown",cars$interior)) %>%  mutate(color=gsub("—","Unknown",cars$color))
@@ -154,6 +163,8 @@ cars <- cars %>% mutate(interior=gsub("—","Unknown",cars$interior)) %>%  mutat
 unique(cars$interior)
 unique(cars$interior)
 ```
+
+
 ```{r}
 unique(cars$state)
 ```
@@ -162,21 +173,30 @@ filtering state
 faulty_states<-cars %>% filter(str_detect(state,"3vw"))
 nrow(faulty_states)
 ```
+
+
 ```{r}
 cars <- cars[!grepl("3vw",cars$state),]
 ```
 
-```{r}
 
+
+```{r}
 unique(cars$state)
 ```
+
+
 ```{r}
 cars$state=toupper(cars$state)
 unique(cars$state)
 ```
+
+
 ```{r}
 length(grepl("sfvver",cars$state))
 ```
+
+
 ```{r}
 cars.years <- cars
 dim(cars)
@@ -185,35 +205,295 @@ dim(cars)
 
 ```{r}
 
-c<-na.omit(cars)
-dim(c)
+cars<-na.omit(cars)
+dim(cars)
 
 ```
-```{r}
-plot_missing(c)
-```
-```{r}
-c$make <- str_to_title(c$make)
-c$model <- str_to_title(c$model)
-c$body <- str_to_title(c$body)
-```
+
 
 ```{r}
-head(c)
+plot_missing(cars)
 ```
 
 
 
 ```{r}
-cwec
+cars$make <- str_to_title(cars$make)
+cars$model <- str_to_title(cars$model)
+cars$body <- str_to_title(cars$body)
+```
+
+
+```{r}
+head(cars)
+```
+
+#EDA and Visualization
+
+```{r}
+mean(cars$sellingprice)
+max(cars$sellingprice)
+min(cars$sellingprice)
+```
+
+
+### checking the car details with max selling price
+```{r}
+filter(cars,sellingprice==230000)
+```
+
+
+checking the car details with min price($1)
+```{r}
+filter(cars,sellingprice<=1)
+
+```
+
+
+```{r}
+options(repr.plot.width =5, repr.plot.height = 6)
+hist <- ggplot(cars, aes(x = sellingprice)) + 
+        geom_histogram(binwidth=2000, fill='#FF9999')+
+        labs(title ="Sale Price distribution. ")
+box <- ggplot(cars, aes( y = sellingprice ) ) +
+        geom_boxplot(fill='#4DE5B1') + 
+        labs(title ="Boxplot of Sale Price")
+hist+box
+
+```
+```{r}
+plot_histogram(cars$sellingprice,ggtheme = theme,title="Sale Price Distribution",geom_histogram_args =list(bins=100))
+plot_boxplot(cars$sellingprice,by=NULL,ggtheme = theme,title = "BoxPlot of Sale Price")
 ```
 
 
 
+```{r}
+# options(repr.plot.width =50, repr.plot.height = 12)
+
+bar <- ggplot(cars, aes(x = transmission, fill = transmission )) + 
+        geom_bar(stat ='count', color='#000000' , alpha=0.99)+
+        geom_text(aes(label=..count..),stat='count', position=position_dodge(0.9),vjust=-0.5, color='black')+
+        labs(title="Transmission System", subtitle ="Automatic cars are the majority. Afterall, we are dealing with\nAmerican car owners. No surprise here." )+
+        theme +
+        theme(axis.text.x = element_text(angle = 0, hjust=0.5))
+
+box1 <- ggplot(cars, aes(x = transmission, y = sellingprice, fill = transmission)) +
+        geom_boxplot()+
+        labs(title="Sale price: full scale", subtitle ="Relatively more 'outliers' in\nthe Automatic cars category" )+
+        theme
+
+box2 <- ggplot(cars, aes(x = transmission, y = sellingprice, fill = transmission)) +
+        geom_boxplot()+
+        labs(title="Sale price: Zoomed in", subtitle ="Automatic cars sold for slightly\n higher price." )+
+        theme + ylim(0, 30000)
+par(mfrow=c(1,1))             
+bar
+par(mfrow=c(1,2))
+box1
+box2
+```
+
+```{r}
+options(repr.plot.width = 12, repr.plot.height = 6)
+ggplot(cars, aes(x =mmr, y =sellingprice, na.rm =TRUE)) + 
+        geom_point(color='#f00000')+
+        labs(title='MMR vs SalePrice', subtitle = 'The MMR values are well in agreedment with the SalePrice\nexcept few outliers!')+
+        geom_smooth(method=lm,color="black")+
+        theme
+
+```
+
+```{r}
+filter(cars, sellingprice > 100000 & mmr < 25000)
+filter(cars, (sellingprice < 50000) & (mmr > 100000))
+```
+
+```{r}
+options(repr.plot.width = 20, repr.plot.height = 8)
+df <- filter(cars, sellingprice > 150000)
+
+p10<-ggplot(df, aes(x = year, y =sellingprice, label = make)) + 
+        geom_point(color='#f00000')+
+        geom_text_repel(aes(label = make), size=5.5)+
+        labs(title='High-priced selected cars', subtitle='That Ford car looks out of place indeed. The rest are luxury brands.')+
+        annotate(geom = "curve", x = 2013, y = 220000, xend = 2014, yend = 230000, curvature = -0.25,   
+                 arrow = arrow(length = unit(3, "mm")))+
+        annotate(geom='text', x=2013, y=215000, label='A weird outlier indeed!', size=6, color='navyblue')+       
+        theme 
+p10
+```
+
+```{r}
+options(repr.plot.width = 12, repr.plot.height = 6)
+ggplot(cars, aes(x =odometer, y =sellingprice, na.rm =TRUE)) + 
+        geom_point(color='#f00000')+
+        geom_smooth(formula = y ~ log(x))+
+        labs(title='Odometer vs Sale Price')+
+        theme
+```
+
+```{r}
+options(repr.plot.width = 12, repr.plot.height = 6)
+ggplot(cars, aes(x =condition, y =sellingprice)) + 
+        geom_point(color='#F8766D')+
+        geom_smooth(formula = y ~ x, method = "lm")+
+        labs(title= 'Cars condition on Sale Price', 
+            subtitle = 'There is a trend in car condition and sale price.' )+
+        theme
+```
+
+```{r}
+cars_ford_ <- filter(cars, make=='Ford' & model=='Fusion' & year=='2012' & body=='Sedan' & odometer <= 25000)
+cars_toyota_ <- filter(cars, make=='Toyota' & model=='Camry' & year=='2012' & body=='Sedan' & odometer <= 25000)
+
+options(repr.plot.width = 16, repr.plot.height = 6)
+f <- ggplot(cars_ford_, aes(x =condition, y =sellingprice)) + 
+        geom_point(color='seagreen')+
+        geom_smooth(formula = y ~ x, method = "lm", color='red')+
+        labs(title= 'Cars condition on Sale Price', 
+            subtitle ="Ford |Fusion |Sedan |2012 |<= 25K km")+
+        theme
+t <- ggplot(cars_toyota_, aes(x =condition, y =sellingprice)) + 
+        geom_point(color='gold')+
+        geom_smooth(formula = y ~ x, method = "lm", color='red')+
+        labs(title= 'Cars condition on Sale Price', 
+            subtitle ="Toyota |Camry |Sedan |2012 |<= 25K km")+
+        theme
+f
+t
+```
+```{r}
+options(repr.plot.width = 12, repr.plot.height = 6)
+
+df <- cars.years %>% group_by(year) %>%
+        summarise(Avg.SalePrice = mean(sellingprice))
+
+ggplot(df, aes(x = year, y = Avg.SalePrice)) + 
+        geom_bar(stat= 'identity', alpha=0.6, color='gold')+
+        labs(title="Year on Sale price" )+
+        theme +
+        theme(axis.text.x = element_text(angle = 90, hjust=0.5))
 
 
+cars.years %>% 
+    group_by(year) %>% 
+    filter(!is.na(year)) %>%
+    summarise(count = n()) %>% 
+    ggplot(aes(x = reorder(year,(-count)), y = count)) + 
+        geom_bar(stat = 'identity', fill='salmon', color='black') + 
+        labs(subtitle="Given the dataset is collected in 2015, the most recent cars\nare likely to be more common as well as high sale on value")+
+        xlab('Year')+
+        theme + theme(axis.text.x = element_text(angle = 90, hjust=0.5))
+```
+```{r}
+filter(cars.years, year < 1983)
+
+```
+
+```{r}
+unique(cars$make)
+```
+### Renaming the make names
+
+```{r}
+cars_new <- cars %>%
+    mutate(make = replace(make, (make == 'Mercedes-B'| make == 'Mercedes'), 'Mercedes-Benz')) %>%
+    mutate(make = replace(make, make == "Vw" ,"Volkswagen"))%>%
+    mutate(make = replace(make, make == "Landrover", "Land Rover"))%>%
+    mutate(make = replace(make, (make == "Ford Truck" | make == "Ford Tk"), "Ford"))%>%
+    mutate(make = replace(make, make == "Chev Truck", "Chevrolet"))%>%
+    mutate(make = replace(make, make == "Mazda Tk", "Mazda"))%>%
+    mutate(make = replace(make, make == "Gmc Truck", "Gmc"))%>%
+    mutate(make = replace(make, (make == "Dodge Tk"), "Dodge"))%>%
+    mutate(make = replace(make, make == "Hyundai Tk", "Haundai"))
+```
+
+### Plotting  the most expensive Brands and Popular models
+
+```{r}
+options(repr.plot.width = 30, repr.plot.height = 10)
+
+df <- cars_new %>% group_by(make) %>%
+      summarise(Avg.SalePrice = mean(sellingprice)) %>%
+      arrange(desc(Avg.SalePrice)) %>%
+      top_n(15)
 
 
+p1<-ggplot(df, aes(x = Avg.SalePrice,y = reorder(make, Avg.SalePrice))) +
+        geom_segment(aes(x = 0, reorder(make, Avg.SalePrice), xend = Avg.SalePrice, yend = make), color = "blue", thickness=10) +
+        geom_point( size=10, color="blue", fill=alpha("orange", 0.3), alpha=0.7, shape=20, stroke=3)+
+        labs(title="Top 15 expensive car brands (avg.)", subtitle ='No surprise as the top three most expensive cars are Ferrari, Bentley, and\nPorsche. Lexury brands are expensive even in thier second life.')+
+        xlab('Sale Price') + ylab('Make')+
+        geom_point() + theme 
 
+df <- cars_new %>% group_by(make) %>% 
+      summarise(freq = n()) %>% 
+      arrange(desc(freq)) %>%
+      top_n(15) 
 
+p2<-ggplot(df, aes(y = reorder(make,(freq)), x = freq)) +
+        geom_segment(aes(x = 0, reorder(make, freq), xend = freq, yend = make), color = "salmon", thickness=10) +
+        geom_point( size=10, color="salmon", fill=alpha("orange", 0.3), alpha=0.7, shape=20, stroke=3)+
+        labs(title="Top 15 popular car brands ", subtitle ='No surprise as the top three most expensive cars are Ferrari, Bentley, and\nPorsche. Lexury brands are expensive even in thier second life.')+
+        xlab('count') + ylab('Make')+
+        geom_point() + theme 
+p1
+p2
+```
+
+```{r}
+cars_ford <- filter(cars, make=='Ford' )
+cars_chev <- filter(cars, make=='Chevrolet')
+cars_toyota <- filter(cars, make=='Toyota' )
+cars_luxury <- filter(cars, (make=='Rolls-Royce' | make=='Ferrari'| make=='Lamborghini'))
+```
+
+```{r}
+options(repr.plot.width = 18, repr.plot.height = 10)
+
+df <- cars_luxury %>% group_by(model) %>%
+      summarise(Avg.SalePrice = mean(sellingprice))%>%
+      arrange(desc(Avg.SalePrice))%>%
+      top_n(15) 
+
+p1<-ggplot(df, aes(y = reorder(model, Avg.SalePrice), x = Avg.SalePrice)) + 
+        geom_bar(stat= 'identity', color= 'black', fill= 'blue')+
+        labs(title="Lexury Cars Model vs Sale price" )+ ylab('Model') +
+        theme +
+        theme(axis.text.x = element_text(angle = 0, hjust=0.5))
+
+df_ford <- cars_luxury %>% group_by(model) %>% 
+           summarise(freq = n()) %>% 
+           arrange(desc(freq))%>%
+           top_n(15)
+    
+p2<-ggplot(df_ford, aes(y = reorder(model,(freq)), x = freq)) + 
+        geom_bar(stat = 'identity', fill="seagreen", color='black') + 
+        labs(title="Luxury Cars Model", subtitle= "")+ ylab('Model')+
+        xlab('count')+
+        theme + theme(axis.text.x = element_text(angle = 0, hjust=0.5))
+
+###
+
+df_pop <- cars_luxury %>% group_by(body) %>% 
+            summarise(freq = n())  
+    
+p3<-ggplot(df_pop, aes(y = reorder(body,(freq)), x = freq)) + 
+        geom_bar(stat = 'identity', color="#000666", fill='gold') + 
+        labs(title="Luxury Car Models body-type", subtitle= "")+ xlab('count')+
+        ylab('Body')+
+        theme + theme(axis.text.x = element_text(angle = 0, hjust=0.5))
+
+df <- cars_luxury %>% group_by(body) %>%
+      summarise(Avg.SalePrice = mean(sellingprice))
+
+p4<-ggplot(df, aes(y = reorder(body, Avg.SalePrice), x = Avg.SalePrice)) + 
+        geom_bar(stat= 'identity', color= 'black', fill='salmon')+
+        labs(title="Luxury Cars Model: Body-type vs Sale price" )+ ylab('Body') +
+        theme +
+        theme(axis.text.x = element_text(angle = 0, hjust=0.5))
+p1 + p2 + p4 + p3
+
+```
 
