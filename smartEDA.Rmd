@@ -1,0 +1,81 @@
+---
+title: "SmartEDA"
+output: html_document
+---
+
+```{r}
+library(SmartEDA)
+library(readxl)
+library(readr)
+```
+
+
+## R Markdown
+
+```{r}
+cars <- read_csv("vehicle_data/car_prices.csv")
+```
+
+
+
+
+### Overview of Data
+```{r}
+ExpData(data=cars,type=1)
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+```{r}
+ExpData(data=cars,type=2)
+```
+
+
+
+
+```{r}
+cars<-drop_na(cars)
+```
+
+
+```{r}
+ExpData(data=cars,type=2, fun = c("mean", "median", "var"))
+```
+
+#EDA
+
+```{r}
+summary(cars[,"sellingprice"])
+```
+
+
+###Statistics of Numerical Variables
+```{r}
+ExpNumStat(cars,by="A",gp="sellingprice",Qnt=seq(0,1,0.25),MesofShape=1,Outlier=TRUE,round=2)
+```
+
+
+
+###Visualization og selling price with other numerical variables
+```{r}
+ExpNumViz(cars,target="sellingprice",nlim=4,scatter=FALSE,fname=NULL,col="green",Page=c(2,2),sample=5)
+```
+
+
+### Visualization of transmission with other Numerical Variables
+```{r}
+plot3 <- ExpNumViz(cars,target="transmission",nlim=4,scatter=FALSE,fname=NULL,col="green",Page=c(2,2),sample=5)
+plot3[[1]]
+
+```
+
+
+#Categorical Variables
+
+
+```{r}
+ExpCatStat(cars,Target="sellingprice",result="IV",clim=10,nlim=5,bins=10,Pclass="Yes",plot=FALSE,top=20,Round=2)
+```
+

@@ -66,7 +66,7 @@ plot_intro(cars)
 ```
 
 ```{r}
-create_report(cars)
+# create_report(cars)
 ```
 
 
@@ -84,6 +84,27 @@ plot_missing(
   theme_config = list(legend.position = c("top"))
 )
 ```
+
+
+
+
+
+
+```{r}
+
+cars<-na.omit(cars)
+dim(cars)
+
+```
+
+
+```{r}
+plot_missing(cars)
+```
+
+
+
+
 
 ```{r}
 unique_values <- rapply(cars,function(x) length(unique(x)))
@@ -104,8 +125,10 @@ plot_bar(cars)
 
 # duplicated(cars$vin)
 length(cars$vin[duplicated(cars$vin)])
-cars$vin[duplicated(cars$vin)]
+# cars$vin[duplicated(cars$vin)]
 ```
+
+
 
 ```{r}
 filter(cars, vin == ('2cndl13f056137366') | vin == ('waulfafh7dn005779') |vin == ('1ftsw21r48ed06505'))
@@ -116,9 +139,15 @@ filter(cars, vin == ('2cndl13f056137366') | vin == ('waulfafh7dn005779') |vin ==
 unique(cars$year)
 ```
 
+
 ```{r}
 unique(cars$make)
 ```
+
+
+
+
+
 
 ```{r}
 unique(cars$model)
@@ -140,6 +169,32 @@ unique(cars$body)
 
 ```
 
+
+
+```{r}
+cars <- cars %>%
+    mutate(body = replace(body, (body == 'SUV'| body == 'suv'), 'SUV')) %>%
+    mutate(body = replace(body, body == "Coupe" | body=='Elantra Coupe' |body=='G37 Coupe'| body=='Q60 Coupe'| body=='g coupe'| body=='cts coupe'|body=='elantra coupe'|body=='G Coupe'|body=='Genesis Coupe'|body=='genesis coupe'|body=='q60 coupe'|body=='CTS Coupe'|body=='Koup'|body=='koup'|body=='CTS-V Coupe'|body=='coupe'|body=='cts-v coupe' ,"Coupe"))%>%
+    mutate(body = replace(body, body == "Crew Cab"|body=='Access Cab'|body=='SuperCrew'|body=='SuperCab'|body=='Regular Cab'|body=='Xtracab'|body=='xtracab'|body=='regular-cab'|body=='supercrew'|body=='crew cab'|body=='regular cab'|body=='supercab'|body=='double cab'|body=='mega cab'|body=='Double Cab'|body=='King Cab'|body=='Quad Cab'|body=='Mega Cab'|body=='Cab Plus'|body=='quad cab'|body=='extended cab'|body=='CrewMax Cab'|body=='Extended Cab'|body=='Club Cab'|body=='king cab'|body=='crewmax cab'|body=='access cab'|body=='club cab'|body=='Cab Plus 4'|body=='cab plus 4', "Cab"))%>%mutate(body = replace(body, (body == "Van" | body == "Promaster Cargo Van"|body=='minivan'|body=='transit van'|body=='promaster cargo van'|body=='E-Series Van'|body=='Ram Van'|body=='Transit Van'|body=='Minivan'|body=='van'|body=='e-series van'|body==''), "Van"))%>%mutate(body = replace(body, (body == "sedan"|body=='Sedan'|body=='G Sedan'|body=='g sedan'),"Sedan"))%>%mutate(body = replace(body, (body == 'G Convertible'|body=='G37 Convertible'|body=='Q60 Convertible'|body=='Beetle Convertible'|body=='g convertible'|body=='granturismo convertible'|body=='q60 convertible'|body=='Convertible'|body=='GranTurismo Convertible'|body=='convertible'|body=='g37 convertible'|body=='beetle convertible'),"Convertible"))%>%mutate(body=replace(body,body=='Hatchback'|body=='hatchback','Hatchback'))%>%mutate(body=replace(body,(body=='CTS Wagon'|body=='TSX Sport Wagon'|body=='CTS-V Wagon'|body=='wagon'|body=='tsx sport wagon'|body=='cts wagon'),'Wagon'))
+```
+
+suv
+coupe
+cab
+Van
+sedan
+Convertible
+Wagon
+hatchback
+
+
+
+
+
+
+
+
+
 ```{r}
 unique(cars$condition)
 
@@ -150,7 +205,7 @@ unique(cars$interior)
 ```
 
 ```{r}
-filter(cars,interior=="—")
+filter(cars,color=="—")
 
 ```
 
@@ -160,34 +215,29 @@ filter(cars,interior=="—")
 unique(cars$color)
 ```
 
-filtering the "—" in color and interior
-```{r}
 
-cars <- cars %>% mutate(interior=gsub("—","Unknown",cars$interior)) %>%  mutate(color=gsub("—","Unknown",cars$color))
+
+
+```{r}
+dim(cars[(cars$color=='—'|cars$interior=='—'),])
+```
+
+
+
+###filtering the "—" in color and interior
+```{r}
+cars<-cars[!(cars$color=='—'|cars$interior=='—'),]
 
 ```
+
+
+
 
 
 ```{r}
 unique(cars$interior)
 unique(cars$interior)
 ```
-
-
-```{r}
-unique(cars$state)
-```
-filtering state
-```{r}
-faulty_states<-cars %>% filter(str_detect(state,"3vw"))
-nrow(faulty_states)
-```
-
-
-```{r}
-cars <- cars[!grepl("3vw",cars$state),]
-```
-
 
 
 ```{r}
@@ -202,28 +252,9 @@ unique(cars$state)
 
 
 ```{r}
-length(grepl("sfvver",cars$state))
-```
-
-
-```{r}
 cars.years <- cars
 dim(cars)
 ```
-
-
-```{r}
-
-cars<-na.omit(cars)
-dim(cars)
-
-```
-
-
-```{r}
-plot_missing(cars)
-```
-
 
 
 ```{r}
@@ -260,19 +291,7 @@ filter(cars,sellingprice<=1)
 
 
 
-```{r}
-# options(repr.plot.width =5, repr.plot.height = 6)
-# hist <- ggplot(cars, aes(x = sellingprice)) + 
-#         geom_histogram(binwidth=2000, fill='#FF9999')+
-#         labs(title ="Sale Price distribution. ")
-# box <- ggplot(cars, aes( y = sellingprice ) ) +
-#         geom_boxplot(fill='#4DE5B1') + 
-#         labs(title ="Boxplot of Sale Price")
-# hist+box
-
-```
-
-
+### Histogram and box plot of selling price 
 ```{r}
 plot_histogram(cars$sellingprice,ggtheme = theme,title="Sale Price Distribution",geom_histogram_args =list(bins=100))
 ggplot(cars, aes( y = sellingprice ) ) +
@@ -290,18 +309,18 @@ ggplot(cars, aes( y = sellingprice ) ) +
 bar <- ggplot(cars, aes(x = transmission, fill = transmission )) + 
         geom_bar(stat ='count', color='#000000' , alpha=0.99)+
         geom_text(aes(label=..count..),stat='count', position=position_dodge(0.9),vjust=-0.5, color='black')+
-        labs(title="Transmission System", subtitle ="Automatic cars are the majority. Afterall, we are dealing with\nAmerican car owners. No surprise here." )+
+        labs(title="Transmission System")+
         theme +
         theme(axis.text.x = element_text(angle = 0, hjust=0.5))
 
 box1 <- ggplot(cars, aes(x = transmission, y = sellingprice, fill = transmission)) +
         geom_boxplot()+
-        labs(title="Sale price: full scale", subtitle ="Relatively more 'outliers' in\nthe Automatic cars category" )+
+        labs(title="Sale price Vs Trasmission")+
         theme
 
 box2 <- ggplot(cars, aes(x = transmission, y = sellingprice, fill = transmission)) +
         geom_boxplot()+
-        labs(title="Sale price: Zoomed in", subtitle ="Automatic cars sold for slightly\n higher price." )+
+        labs(title="Sale price Vs Trasmission(Without Outliers)")+
         theme + ylim(0, 30000)
 par(mfrow=c(1,1))             
 bar
@@ -318,8 +337,8 @@ box2
 
 options(repr.plot.width = 12, repr.plot.height = 6)
 ggplot(cars, aes(x =mmr, y =sellingprice, na.rm =TRUE)) + 
-        geom_point(color='#f00000')+
-        labs(title='MMR vs SalePrice', subtitle = 'The MMR values are well in agreedment with the SalePrice\nexcept few outliers!')+
+        geom_point(color='blue')+
+        labs(title='MMR vs SalePrice')+
         geom_smooth(method=lm,color="black")+
         theme
 ```
@@ -336,6 +355,8 @@ filter(cars, (sellingprice < 50000) & (mmr > 100000))
 
 
 
+### PLot of High-Priced cars
+
 ```{r}
 
 options(repr.plot.width = 20, repr.plot.height = 8)
@@ -344,10 +365,7 @@ df <- filter(cars, sellingprice > 150000)
 p10<-ggplot(df, aes(x = year, y =sellingprice, label = make)) + 
         geom_point(color='#f00000')+
         geom_text_repel(aes(label = make), size=5.5)+
-        labs(title='High-priced selected cars', subtitle='That Ford car looks out of place indeed. The rest are luxury brands.')+
-        annotate(geom = "curve", x = 2013, y = 220000, xend = 2014, yend = 230000, curvature = -0.25,   
-                 arrow = arrow(length = unit(3, "mm")))+
-        annotate(geom='text', x=2013, y=215000, label='A weird outlier indeed!', size=6, color='navyblue')+       
+        labs(title='selected High-priced  cars')+
         theme 
 p10
 
@@ -373,8 +391,7 @@ options(repr.plot.width = 12, repr.plot.height = 6)
 ggplot(cars, aes(x =condition, y =sellingprice)) + 
         geom_point(color='#F8766D')+
         geom_smooth(formula = y ~ x, method = "lm")+
-        labs(title= 'Cars condition on Sale Price', 
-            subtitle = 'There is a trend in car condition and sale price.' )+
+        labs(title= 'Cars condition on Sale Price')+
         theme
 ```
 
@@ -521,7 +538,11 @@ p2
 cars_ford <- filter(cars, make=='Ford' )
 cars_chev <- filter(cars, make=='Chevrolet')
 cars_toyota <- filter(cars, make=='Toyota' )
-cars_luxury <- filter(cars, (make=='Rolls-Royce' | make=='Ferrari'| make=='Lamborghini'))
+cars_luxury <- filter(cars, (make=='Rolls-Royce' | make=='Ferrari'| make=='Lamborghini'|make==''))
+mean(cars_ford$sellingprice)
+dim(cars_chev)
+dim(cars_toyota)
+
 ```
 
 
@@ -776,4 +797,14 @@ cars %>%
         xlab('States')+ ylab('Count')+
         theme
 ```
+
+
+
+
+### Corrrelation Plot
+```{r}
+plot_correlation(cars,type="continuous")
+
+```
+
 
